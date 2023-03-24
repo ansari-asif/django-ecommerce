@@ -5,7 +5,6 @@ class Category(BaseModel):
     category_name=models.CharField(max_length=100)
     category_image=models.ImageField(upload_to="categories")
     slug=models.SlugField(unique=True)
-
 class Product(BaseModel):
     product_name=models.CharField(max_length=100)
     category=models.ForeignKey(Category,on_delete=models.CASCADE,related_name='products')
