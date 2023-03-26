@@ -4,6 +4,9 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate,login,logout
 from django.http import HttpResponseRedirect,HttpResponse
 from .models import Profile
+from products.models import Product,SizeVariant
+from accounts.models import Cart,CartItems
+from django.http import HttpResponseRedirect
 
 
 def login_page(request):
@@ -61,3 +64,30 @@ def activate_email(request,email_token):
     except Exception as e:
         print(e)
         return HttpResponse('invalid Email Token')
+    
+def cart(request):
+    cart=Cart.objects.filter(is_paid=False,user=request.user)
+    data={
+        'cart':cart
+    }
+    print('****')
+    print(cart)
+    return render(request,'accounts/cart.html',data)   
+
+
+def add_to_cart(request,uid):
+    variant=request.GET.get('variant')
+    
+    product=Product.objects.get(uid=uid)
+    user=request.user
+    cart,_=Cart.objects.get_or_create(user=user,is_paid=False)
+    cart_item=CartItems.objects.create(cart=cart,product=product)
+
+    if variant:
+        variant=request.GET.get('variant')
+        size_variant=SizeVariant.objects.get(size_name=variant)
+        cart_item.size_variant=size_variant
+        cart_item.save()
+
+
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))

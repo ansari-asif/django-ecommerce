@@ -4,9 +4,7 @@ from accounts.models import Cart,CartItems
 from django.http import HttpResponseRedirect
 
 def get_products(request,slug):
-    print('********')
-    print(request.user.profile)
-    print('********')
+    
     try:
         product=Product.objects.get(slug=slug)
         data={
@@ -22,19 +20,3 @@ def get_products(request,slug):
     except Exception as e:
         print(e)
 
-def add_to_cart(request,uid):
-    variant=request.GET.get('variant')
-    
-    product=Product.objects.get(uid=uid)
-    user=request.user
-    cart,_=Cart.objects.get_or_create(user=user,is_paid=False)
-    cart_item=CartItems.objects.create(cart=cart,product=product)
-
-    if variant:
-        variant=request.GET.get('variant')
-        size_variant=SizeVariant.objects.get(size_name=variant)
-        cart_item.size_variant=size_variant
-        cart_item.save()
-
-
-    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
