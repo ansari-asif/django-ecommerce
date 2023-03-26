@@ -10,6 +10,7 @@
           <h4 class="card-title mb-4">Sign in</h4>
           <form method='post'>
             {% csrf_token %}
+            {% include 'base/alert.html' %}
           <div class="form-group">
                  <input name="email" class="form-control" placeholder="Username" type="text">
               </div> <!-- form-group// -->
