@@ -19,13 +19,13 @@
     </thead>
     <tbody>
     
-    {% for cartItem in cart %}
+    {% for cartItem in cart.cart_items.all %}
     <tr>
         <td>
             <figure class="itemside">
                 <div class="aside"><img src="images/items/2.jpg" class="img-sm"></div>
                 <figcaption class="info">
-                    <a href="#" class="title text-dark">Product name  goes here nice</a>
+                    <a href="#" class="title text-dark">{{cartItem.product.product_name}}</a>
                     <p class="text-muted small">Size: XL, Color: blue, <br> Brand: Gucci</p>
                 </figcaption>
             </figure>
@@ -40,7 +40,7 @@
         </td>
         <td> 
             <div class="price-wrap"> 
-                <var class="price">$149.97</var> 
+                <var class="price">${{cartItem.get_product_price}}</var> 
                 <small class="text-muted"> $75.00 each </small>  
             </div> <!-- price-wrap .// -->
         </td>
@@ -93,7 +93,7 @@
                         </dl>
                         <dl class="dlist-align">
                           <dt>Total:</dt>
-                          <dd class="text-right  h5"><strong>$1,650</strong></dd>
+                          <dd class="text-right  h5"><strong>${{cart.get_cart_total}}</strong></dd>
                         </dl>
                         <hr>
                         <p class="text-center mb-3">

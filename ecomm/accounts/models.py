@@ -32,9 +32,9 @@ class Cart(BaseModel):
             if cart_item.size_variant:
                 size_variant_price=cart_item.size_variant.price
                 price.append(size_variant_price)
-
-        print(price)
         return sum(price)
+    
+   
 
 class CartItems(BaseModel):
     cart=models.ForeignKey(Cart,on_delete=models.CASCADE,related_name='cart_items')

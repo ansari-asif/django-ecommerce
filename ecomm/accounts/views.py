@@ -64,16 +64,20 @@ def activate_email(request,email_token):
     except Exception as e:
         print(e)
         return HttpResponse('invalid Email Token')
-    
+import inspect
+from pprint import pprint
 def cart(request):
-    cart=Cart.objects.filter(is_paid=False,user=request.user)
+    cart=Cart.objects.get(is_paid=False,user=request.user)
     data={
         'cart':cart
     }
-    print('****')
-    print(cart)
-    return render(request,'accounts/cart.html',data)   
 
+
+    print('****')
+    # pprint(inspect.getmembers(cart))
+    pprint(vars(cart.cart_items.all()))
+    # print((cart.cart_items.all()))
+    return render(request,'accounts/cart.html',data)   
 
 def add_to_cart(request,uid):
     variant=request.GET.get('variant')
