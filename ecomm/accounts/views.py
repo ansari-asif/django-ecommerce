@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate,login,logout
 from django.http import HttpResponseRedirect,HttpResponse
 from .models import Profile
-from products.models import Product,SizeVariant
+from products.models import Product,SizeVariant,Coupon
 from accounts.models import Cart,CartItems
 from django.http import HttpResponseRedirect
 
@@ -67,17 +67,47 @@ def activate_email(request,email_token):
 import inspect
 from pprint import pprint
 def cart(request):
-    cart=Cart.objects.get(is_paid=False,user=request.user)
+    cart_obj=Cart.objects.get(is_paid=False,user=request.user)
     data={
-        'cart':cart
+        'cart':cart_obj
     }
 
+    if request.method =='POST':
+        coupon=request.POST.get('coupon')
+        coupon_obj=Coupon.objects.filter(coupon_code=coupon)
+        print('********************************')
+        print(vars(coupon_obj))
+        print('********************************')
+        if not coupon_obj.exists():
+            messages.warning(request, 'Invalid Coupon Code')   
+            return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+        if cart_obj.coupon:
+            messages.warning(request, 'Coupon already exists')   
+            return HttpResponseRedirect(request.META.get('HTTP_REFERER'))        
+        
+        if cart_obj.get_cart_total() < coupon_obj[0].minimum_amount:
+            messages.success(request, f'Amount should be greater than {coupon_obj[0].minimum_amount}')   
+            return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+        if coupon_obj[0].is_expired:
+            messages.warning(request, 'Coupon expired')   
+            return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+            
+        cart_obj.coupon = coupon_obj[0]
+        cart_obj.save()
+        messages.success(request, 'Coupon applied successfully')   
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
-    print('****')
-    # pprint(inspect.getmembers(cart))
-    pprint(vars(cart.cart_items.all()))
-    # print((cart.cart_items.all()))
     return render(request,'accounts/cart.html',data)   
+
+def remove_coupon(request,cart_uid):
+    try:
+        cart=Cart.objects.get(uid=cart_uid)
+        cart.coupon=None
+        cart.save()
+        messages.success(request, 'Coupon removed')  
+    except Exception as e:
+        print(e) 
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 def add_to_cart(request,uid):
     variant=request.GET.get('variant')
@@ -95,3 +125,14 @@ def add_to_cart(request,uid):
 
 
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
+def remove_cart(request, cartItem_uid):
+    try:
+        cart_item =CartItems.objects.get(uid=cartItem_uid)
+        cart_item.delete()
+    except exception as e:
+        print(e)
+                
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+

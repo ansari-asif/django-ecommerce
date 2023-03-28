@@ -46,7 +46,7 @@
         </td>
         <td class="text-right"> 
         <a data-original-title="Save to Wishlist" title="" href="" class="btn btn-light" data-toggle="tooltip"> <i class="fa fa-heart"></i></a> 
-        <a href="" class="btn btn-light btn-round"> Remove</a>
+        <a href="{% url 'remove_cart' cartItem.uid%}" class="btn btn-light btn-round"> Remove</a>
         </td>
     </tr>
     {% endfor %}
@@ -68,17 +68,22 @@
         <aside class="col-md-3">
             <div class="card mb-3">
                 <div class="card-body">
-                <form>
+                <form method='POST'>
+                    {% include 'base/alert.html' %}
+                    {% csrf_token %}
                     <div class="form-group">
                         <label>Have coupon?</label>
                         <div class="input-group">
-                            <input type="text" class="form-control" name="" placeholder="Coupon code">
+                            <input type="text" class="form-control" name="coupon" placeholder="Coupon code">
                             <span class="input-group-append"> 
-                                <button class="btn btn-primary">Apply</button>
+                                <button type="submit" class="btn btn-primary">Apply</button>
                             </span>
                         </div>
                     </div>
                 </form>
+                {% if cart.coupon %}
+                    <a href="{% url 'remove_coupon' cart.uid%}" class="btn btn-success">{{cart.coupon.coupon_code}}</a>
+                {% endif %}
                 </div> <!-- card-body.// -->
             </div>  <!-- card .// -->
             <div class="card">
